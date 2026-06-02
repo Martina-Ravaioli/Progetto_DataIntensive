@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Risultato</title>
+</head>
+<body>
+    <div>
+        <h1>Risultato Predizione Burnout</h1>
+
+        <p>Livello di burnout: <b>{{ resp }}</b></p>
+
+        <a href="{{ url_for('home') }}">Torna indietro</a>
+    </div>
+</body>
+</html>
