@@ -1,19 +1,25 @@
 from flask import Flask, request, render_template
 import pickle
+import os
 
 app = Flask(__name__)
 
-# Home page
+# Carica il modello una sola volta all'avvio
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "model.bin")
+
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
+
+print(f"✅ Modello caricato da: {model_path}")
+
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
-# Predizione
 @app.route("/predict")
 def predict():
     try:
-        # Lettura input dal form
         inputs = [
             float(request.args["daily_work_hours"]),
             float(request.args["sleep_hours"]),
@@ -22,24 +28,16 @@ def predict():
             float(request.args["meetings_per_day"]),
             float(request.args["exercise_hours"])
         ]
+        print(f"Input ricevuti: {inputs}")
 
-        # Caricamento modello
-        with app.open_resource("model.bin", "rb") as f:
-            model = pickle.load(f)
-
-        # Predizione
         output = model.predict([inputs])[0]
+        print(f"Output modello: {output}")
 
-        # Mapping classi
-        mapping = {
-            0: "Low",
-            1: "Medium",
-            2: "High"
-        }
-
-        response = mapping.get(output, "Errore")
-
+        mapping = {0: "Low", 1: "Medium", 2: "High"}
+        response = mapping.get(int(output), "Errore")
         return render_template("predict.html", resp=response)
-
     except Exception as e:
-        return f"Errore: {e}"
+        return f"Errore: {e}", 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=False, use_reloader=False)
