@@ -2,6 +2,11 @@ from flask import Flask, request, render_template
 import pickle
 
 app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "model.bin")
+
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
 
 # Home page
 @app.route("/")
@@ -22,10 +27,6 @@ def predict():
             float(request.args["meetings_per_day"]),
             float(request.args["exercise_hours"])
         ]
-
-        # Caricamento modello
-        with app.open_resource("model.bin", "rb") as f:
-            model = pickle.load(f)
 
         # Predizione
         output = model.predict([inputs])[0]
